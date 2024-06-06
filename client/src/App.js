@@ -1,24 +1,160 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Header />
+      <MainContent />
+      <SearchSection />
     </div>
+  );
+}
+
+function Header() {
+  return (
+    <header className="header">
+      <nav class="bg-white border-gray-200 dark:bg-gray-900">
+        <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+          <a
+            href="https://flowbite.com/"
+            class="flex items-center space-x-3 rtl:space-x-reverse"
+          >
+            <img
+              src="https://flowbite.com/docs/images/logo.svg"
+              class="h-8"
+              alt="Flowbite Logo"
+            />
+            <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">
+              Click&Cook
+            </span>
+          </a>
+          <button
+            data-collapse-toggle="navbar-default"
+            type="button"
+            class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+            aria-controls="navbar-default"
+            aria-expanded="false"
+          >
+            <span class="sr-only">Open main menu</span>
+            <svg
+              class="w-5 h-5"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 17 14"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M1 1h15M1 7h15M1 13h15"
+              />
+            </svg>
+          </button>
+          <div class="hidden w-full md:block md:w-auto" id="navbar-default">
+            <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+              <li>
+                <a
+                  href="#"
+                  class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500"
+                  aria-current="page"
+                >
+                  Explore Recipes
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                >
+                  Post Recipe
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                >
+                  Ask our AI
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
+                >
+                  Sign up
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+  );
+}
+
+function MainContent() {
+  return (
+    <main className="main-content">
+      <div className="flex">
+        <div className="w-1/2">
+          <h1 className="text-4xl">AI Powered Recipes</h1>
+          <p>
+            Explore recipes added by our users, submit your own creations!{" "}
+            <br />
+            Not sure what to make with the ingredients at hand? Just ask our AI
+            to make a recipe tailored to your needs!
+          </p>
+          <div className="social-icons">
+            <a href="#instagram">Instagram</a>
+            <a href="#facebook">Facebook</a>
+            <a href="#twitter">Twitter</a>
+          </div>
+        </div>
+        <div className="1/2">
+          <img src="hero-image.jpg" alt="" srcset="" />
+        </div>
+      </div>
+
+      <button className="get-started">Get Started</button>
+    </main>
+  );
+}
+
+function SearchSection() {
+  return (
+    <section className="search-section">
+      <div className="search-fields">
+        <div className="dropdown">
+          <label htmlFor="ingredients">Ingredients</label>
+          <select id="ingredients">
+            <option value="beef">Beef</option>
+            <option value="chicken">Chicken</option>
+            <option value="fish">Fish</option>
+          </select>
+        </div>
+        <div className="dropdown">
+          <label htmlFor="method">Method</label>
+          <select id="method">
+            <option value="roast">Roast</option>
+            <option value="grill">Grill</option>
+            <option value="boil">Boil</option>
+          </select>
+        </div>
+        <div className="dropdown">
+          <label htmlFor="dishes">Many Dishes</label>
+          <select id="dishes">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+      </div>
+      <button className="search-button">Search</button>
+    </section>
   );
 }
 
