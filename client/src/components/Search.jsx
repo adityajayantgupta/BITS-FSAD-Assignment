@@ -90,15 +90,6 @@ export default function Search({ updateSearchResults }) {
       );
     }
 
-    const timeInMinutes = parseInt(timeValue);
-
-    if (timeInMinutes > 0) {
-      recipesRef = query(
-        recipesRef,
-        where("metadata.time", "<=", timeInMinutes)
-      );
-    }
-
     // Apply search term filter
     if (searchTerm.trim() !== "") {
       recipesRef = query(
@@ -112,10 +103,17 @@ export default function Search({ updateSearchResults }) {
     // Execute Firestore query
     try {
       const querySnapshot = await getDocs(recipesRef);
-      const recipes = querySnapshot.docs.map((doc) => ({
+      let recipes = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
+      const timeInMinutes = parseInt(timeValue);
+      if (timeInMinutes > 0) {
+        recipes = recipes.filter((recipe) => {
+          return parseInt(recipe.metadata.time) <= timeInMinutes;
+        });
+      }
+
       setSearchResult(recipes);
       updateSearchResults(recipes);
       console.log(recipes);
