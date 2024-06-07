@@ -12,6 +12,7 @@ import Logout from "./routes/Logout";
 import Profile from "./routes/Profile";
 import Recipe from "./routes/Recipe";
 import Register from "./routes/Register";
+import AskAI from "./routes/AskAI";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
   {
     path: "recipes/edit/:recipeId",
     element: <RecipeForm />,
+  },
+  {
+    path: "askAI",
+    element: <AskAI />,
   },
   {
     path: "register",

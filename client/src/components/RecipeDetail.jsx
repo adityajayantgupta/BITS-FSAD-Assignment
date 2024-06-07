@@ -213,9 +213,9 @@ export default function RecipeDetail({ recipeId }) {
             <div id="recipe-tags" className="flex justify-end">
               <span
                 className={`tag font-bold p-2 m-2 rounded ${
-                  recipe.metadata.difficulty === "easy"
+                  recipe.metadata.difficulty === "beginner"
                     ? "bg-green-500 bg-opacity-15 text-green-700"
-                    : recipe.metadata.difficulty === "medium"
+                    : recipe.metadata.difficulty === "intermediate"
                     ? "bg-orange-500 bg-opacity-15 text-orange-700"
                     : "bg-red-500 bg-opacity-15 text-red-700"
                 }`}
@@ -280,23 +280,25 @@ export default function RecipeDetail({ recipeId }) {
             })}
           </ol>
         </section>
-        <section name="reviews" className="bg-gray-100 p-4 rounded-xl">
-          <h2 className="text-2xl font-bold">Reviews</h2>
-          <ul className="my-2 bg-white rounded-xl p-4">
-            {recipe.reviews.map((review) => {
-              return (
-                <li className="">
-                  <h2 className="font-bold">{review.userName}</h2>
-                  <div>
-                    {renderStars(calculateAverageRating(recipe.reviews))} (
-                    {recipe.reviews.length} reviews)
-                  </div>
-                  {review.comment}
-                </li>
-              );
-            })}
-          </ul>
-        </section>
+        {recipe.reviews.length > 0 && (
+          <section name="reviews" className="bg-gray-100 p-4 rounded-xl">
+            <h2 className="text-2xl font-bold">Reviews</h2>
+            <ul className="my-2 bg-white rounded-xl p-4">
+              {recipe.reviews.map((review) => {
+                return (
+                  <li className="">
+                    <h2 className="font-bold">{review.userName}</h2>
+                    <div>
+                      {renderStars(calculateAverageRating(recipe.reviews))} (
+                      {recipe.reviews.length} reviews)
+                    </div>
+                    {review.comment}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
       </div>
     </section>
   );

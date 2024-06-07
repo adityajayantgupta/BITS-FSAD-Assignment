@@ -14,22 +14,23 @@ function MainContent() {
     <main className="main-content max-w-screen-xl flex h-screen m-auto">
       <div className="m-auto flex">
         <div className="w-1/2">
-          <h1 className="text-7xl my-6 font-bold">Share your Recipes!</h1>
+          <h1 className="text-7xl my-6 font-bold">AI Powered Recipes!</h1>
           <p className="text-lg text-gray-400">
-            Explore recipes added by our users, submit your own creations!{" "}
+            Explore recipes added by our users, submit your own creations, or
+            ask our AI for suggestions based on your available ingredients!{" "}
             <br />
           </p>
           <a
-            href="/recipes/create"
+            href="/askAI"
             className="inline-block rounded-3xl text-white bg-green-500 px-10 py-3 my-8 mr-3"
           >
-            Share a recipe!
+            Ask the AI
           </a>
           <a
             href="/recipes"
             className="inline-block rounded-3xl text-green-500 border-2 border-green-500 px-10 py-3 my-8"
           >
-            Explore recipes!
+            Explore recipes
           </a>
         </div>
         <div className="w-1/2">
