@@ -1,13 +1,67 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import App from "./App";
+import Header from "./components/Header";
+import ErrorPage from "./error-page";
+import "./index.css";
+import reportWebVitals from "./reportWebVitals";
+import Recipe from "./routes/Recipes";
+import RecipeForm from "./components/RecipeForm";
+import Register from "./routes/Register";
+import Login from "./routes/Login";
+import Logout from "./routes/Logout";
+import Profile from "./routes/Profile";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <App />,
+    errorElement: <ErrorPage />,
+  },
+  {
+    path: "recipes/:recipeId",
+    element: <Recipe />,
+  },
+  {
+    path: "recipes",
+    element: <Recipe />,
+  },
+  {
+    path: "recipes/create",
+    element: <RecipeForm />,
+  },
+  {
+    path: "recipes/edit/:recipeId",
+    element: <RecipeForm />,
+  },
+  {
+    path: "register",
+    element: <Register />,
+  },
+  {
+    path: "login",
+    element: <Login />,
+  },
+  {
+    path: "logout",
+    element: <Logout />,
+  },
+  {
+    path: "profile",
+    element: <Profile />,
+  },
+  {
+    path: "404",
+    element: <ErrorPage />,
+  },
+]);
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <App />
+    <Header />
+    <RouterProvider router={router} />
   </React.StrictMode>
 );
 
