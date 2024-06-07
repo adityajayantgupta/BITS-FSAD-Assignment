@@ -1,12 +1,21 @@
+import {
+  collection,
+  endAt,
+  getDocs,
+  orderBy,
+  query,
+  startAt,
+  where,
+} from "firebase/firestore";
 import React, { useState } from "react";
-import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 
-export default function Search() {
+export default function Search({ updateSearchResults }) {
   const [searchResult, setSearchResult] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [typeFilters, setTypeFilters] = useState({
     vegetarian: false,
-    nonVegetarian: false,
+    "non-vegetarian": false,
     pescetarian: false,
   });
 
@@ -16,22 +25,23 @@ export default function Search() {
     expert: false,
   });
 
-  const [timeValue, setTimeValue] = useState(0);
+  const [timeValue, setTimeValue] = useState(999);
 
   const handleCheckboxChange = (event) => {
     const { name, checked } = event.target;
 
-    if (name.startsWith("type")) {
+    if (typeFilters.hasOwnProperty(name)) {
       setTypeFilters((prevFilters) => ({
         ...prevFilters,
         [name]: checked,
       }));
-    } else if (name.startsWith("difficulty")) {
+    } else if (difficultyFilters.hasOwnProperty(name)) {
       setDifficultyFilters((prevFilters) => ({
         ...prevFilters,
         [name]: checked,
       }));
     }
+    console.log(typeFilters, difficultyFilters);
   };
 
   const handleTimeChange = (event) => {
@@ -39,66 +49,80 @@ export default function Search() {
     setTimeValue(value);
   };
 
-  const handleSubmit = (event) => {
-    const handleSubmit = async (event) => {
-      event.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-      // Construct Firestore query filters
-      let recipesRef = collection(db, "recipes");
+    // Construct Firestore query filters
+    let recipesRef = collection(db, "recipes");
 
-      // Apply filters
-      if (
-        typeFilters.vegetarian ||
-        typeFilters.nonVegetarian ||
-        typeFilters.pescetarian
-      ) {
-        recipesRef = query(
-          recipesRef,
-          where(
-            "type",
-            "in",
-            Object.entries(typeFilters)
-              .filter(([_, value]) => value)
-              .map(([key]) => key)
-          )
-        );
-      }
+    // Apply filters
+    if (
+      typeFilters.vegetarian ||
+      typeFilters["non-vegetarian"] ||
+      typeFilters.pescetarian
+    ) {
+      recipesRef = query(
+        recipesRef,
+        where(
+          "metadata.type",
+          "in",
+          Object.entries(typeFilters)
+            .filter(([_, value]) => value)
+            .map(([key]) => key)
+        )
+      );
+    }
 
-      if (
-        difficultyFilters.beginner ||
-        difficultyFilters.intermediate ||
-        difficultyFilters.expert
-      ) {
-        recipesRef = query(
-          recipesRef,
-          where(
-            "difficulty",
-            "in",
-            Object.entries(difficultyFilters)
-              .filter(([_, value]) => value)
-              .map(([key]) => key)
-          )
-        );
-      }
+    if (
+      difficultyFilters.beginner ||
+      difficultyFilters.intermediate ||
+      difficultyFilters.expert
+    ) {
+      recipesRef = query(
+        recipesRef,
+        where(
+          "metadata.difficulty",
+          "in",
+          Object.entries(difficultyFilters)
+            .filter(([_, value]) => value)
+            .map(([key]) => key)
+        )
+      );
+    }
 
-      if (timeValue > 0) {
-        recipesRef = query(recipesRef, where("time", "<=", timeValue));
-      }
+    const timeInMinutes = parseInt(timeValue);
 
-      // Execute Firestore query
-      try {
-        const querySnapshot = await getDocs(recipesRef);
-        const recipes = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
-        setSearchResult(recipes);
-      } catch (error) {
-        console.error("Error fetching recipes:", error);
-      }
-    };
+    if (timeInMinutes > 0) {
+      recipesRef = query(
+        recipesRef,
+        where("metadata.time", "<=", timeInMinutes)
+      );
+    }
 
-    // Reset form or perform other actions as needed
+    // Apply search term filter
+    if (searchTerm.trim() !== "") {
+      recipesRef = query(
+        recipesRef,
+        orderBy("title"),
+        startAt(searchTerm.toLowerCase()),
+        endAt(searchTerm.toLowerCase() + "\uf8ff")
+      );
+    }
+
+    // Execute Firestore query
+    try {
+      const querySnapshot = await getDocs(recipesRef);
+      const recipes = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setSearchResult(recipes);
+      updateSearchResults(recipes);
+      console.log(recipes);
+    } catch (error) {
+      console.error("Error fetching recipes:", error);
+      updateSearchResults([]);
+    }
   };
   return (
     <form class="max-w-md mx-auto" onSubmit={handleSubmit}>
@@ -131,7 +155,9 @@ export default function Search() {
           id="default-search"
           class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
           placeholder="Search Mockups, Logos..."
-          required
+          name="searchTerm"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
         <button
           type="submit"
@@ -146,7 +172,7 @@ export default function Search() {
       >
         Search
       </label>
-      <div className="relative">{/* Input for searching */}</div>
+      <div className="relative"></div>
 
       {/* Type checkboxes */}
       <div className="mt-4">
@@ -158,14 +184,14 @@ export default function Search() {
             <React.Fragment key={type}>
               <input
                 type="checkbox"
-                id={`type-${type}`}
-                name={`type-${type}`}
+                id={`${type}`}
+                name={`${type}`}
                 checked={checked}
                 onChange={handleCheckboxChange}
                 className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
               />
               <label
-                htmlFor={`type-${type}`}
+                htmlFor={`${type}`}
                 className="text-sm font-medium text-gray-700"
               >
                 {type}
@@ -185,14 +211,14 @@ export default function Search() {
             <React.Fragment key={difficulty}>
               <input
                 type="checkbox"
-                id={`difficulty-${difficulty}`}
-                name={`difficulty-${difficulty}`}
+                id={`${difficulty}`}
+                name={`${difficulty}`}
                 checked={checked}
                 onChange={handleCheckboxChange}
                 className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
               />
               <label
-                htmlFor={`difficulty-${difficulty}`}
+                htmlFor={`${difficulty}`}
                 className="text-sm font-medium text-gray-700"
               >
                 {difficulty}
@@ -219,14 +245,6 @@ export default function Search() {
           <option value="999">&gt; 1 hour</option>
         </select>
       </div>
-
-      {/* Submit button */}
-      <button
-        type="submit"
-        className="mt-4 text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2"
-      >
-        Search
-      </button>
     </form>
   );
 }

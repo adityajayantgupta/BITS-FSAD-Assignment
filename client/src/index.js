@@ -3,15 +3,15 @@ import ReactDOM from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import App from "./App";
 import Header from "./components/Header";
+import RecipeForm from "./components/RecipeForm";
 import ErrorPage from "./error-page";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import Recipe from "./routes/Recipe";
-import RecipeForm from "./components/RecipeForm";
-import Register from "./routes/Register";
 import Login from "./routes/Login";
 import Logout from "./routes/Logout";
 import Profile from "./routes/Profile";
+import Recipe from "./routes/Recipe";
+import Register from "./routes/Register";
 
 const router = createBrowserRouter([
   {

@@ -23,6 +23,10 @@ export default function RecipeList({ uid }) {
     });
   };
 
+  const updateSearchResults = (results) => {
+    setRecipes(results);
+  };
+
   useEffect(() => {
     fetchRecipes();
   }, [uid]);
@@ -33,17 +37,21 @@ export default function RecipeList({ uid }) {
         Explore our collection of recipes!
       </h1>
       <div className="mb-10 w-full">
-        <Search />
+        <Search updateSearchResults={updateSearchResults} />
       </div>
-      <ul className="grid grid-cols-4 gap-4">
-        {recipes.map((recipe) => {
-          return (
-            <li key={recipe.id}>
-              <ListCard card={recipe}></ListCard>
-            </li>
-          );
-        })}
-      </ul>
+      {recipes.length < 0 ? (
+        "No recipes found!"
+      ) : (
+        <ul className="grid grid-cols-4 gap-4">
+          {recipes.map((recipe) => {
+            return (
+              <li key={recipe.id}>
+                <ListCard card={recipe}></ListCard>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
 }
