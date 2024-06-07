@@ -1,12 +1,21 @@
-import { addDoc, doc, collection } from "firebase/firestore";
-import { useState, useEffect } from "react";
-import { FileUploader } from "react-drag-drop-files";
-import { auth, db, storage } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
-import { getDoc } from "firebase/firestore";
+import {
+  addDoc,
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { useEffect, useState } from "react";
+import { FileUploader } from "react-drag-drop-files";
+import { useNavigate, useParams } from "react-router-dom";
+import { auth, db, storage } from "../firebase";
 
-export default function RecipeForm({ recipeId }) {
+export default function RecipeForm() {
+  const { recipeId } = useParams();
   const navigate = useNavigate();
   const fileTypes = ["JPG", "PNG"];
   const [user, setUser] = useState({ uid: null });
@@ -20,7 +29,7 @@ export default function RecipeForm({ recipeId }) {
   const [steps, setSteps] = useState([]);
   const [newStep, setNewStep] = useState("");
   const [formData, setFormData] = useState({
-    userRef: doc(db, "users/" + user.uid),
+    uid: user.uid,
     title: "",
     description: "",
     ingredients: ingredients,
@@ -30,7 +39,7 @@ export default function RecipeForm({ recipeId }) {
     metadata: {
       type: "",
       difficulty: "",
-      time: "",
+      time: 0,
     },
   });
 
@@ -48,7 +57,15 @@ export default function RecipeForm({ recipeId }) {
     if (recipeId) {
       prepopulateEditForm();
     }
-  }, []);
+  }, [recipeId]);
+
+  useEffect(() => {
+    setFormData({ ...formData, ingredients: ingredients });
+  }, [ingredients]);
+
+  useEffect(() => {
+    setFormData({ ...formData, steps: steps });
+  }, [steps]);
 
   const prepopulateEditForm = async () => {
     const docRef = doc(db, "recipes", recipeId);
@@ -56,13 +73,18 @@ export default function RecipeForm({ recipeId }) {
 
     if (docSnap.exists()) {
       const recipeData = docSnap.data();
-      formData.title = recipeData.title;
-      formData.description = recipeData.description;
+      setFormData({
+        ...formData,
+        title: recipeData.title,
+        description: recipeData.description,
+        ingredients: recipeData.ingredients,
+        steps: recipeData.steps,
+        imageURL: recipeData.imageURL,
+        reviews: recipeData.reviews,
+        metadata: recipeData.metadata,
+      });
       setIngredients(recipeData.ingredients);
       setSteps(recipeData.steps);
-      formData.imageURL = recipeData.imageURL;
-      formData.reviews = recipeData.reviews;
-      formData.metadata = recipeData.metadata;
     } else {
       navigate("/404");
     }
@@ -132,6 +154,7 @@ export default function RecipeForm({ recipeId }) {
 
     if (user) {
       formData.userRef = doc(db, "users/" + user.uid);
+      formData.uid = user.uid;
     }
 
     if (ingredients.length < 1 || steps.length < 1) {
@@ -140,32 +163,125 @@ export default function RecipeForm({ recipeId }) {
       );
     }
 
-    // Upload image to Firebase Storage if provided
-    let imageURL = "";
-    if (image) {
-      const imageRef = storage.ref(`users/a1/images/public/${image.name}`);
-      await imageRef.put(image);
-      imageURL = await imageRef.getDownloadURL();
-      setFormData({ ...formData, imageURL: imageURL });
-    }
-
     try {
-      // Add recipe data to Firestore
-      await addDoc(collection(db, "recipes"), formData);
+      if (recipeId) {
+        await setRecipe();
+      } else {
+        await addRecipe();
+      }
     } catch (err) {
-      console.log(err);
-      return alert("Error adding recipe to Firestore!");
+      console.error(err);
+      if (recipeId) {
+        return alert("Error while updating recipe: " + err.message);
+      } else {
+        return alert("Error adding recipe: " + err.message);
+      }
     }
+  };
 
-    setIngredients([]);
-    setSteps([]);
-    setFormData({
-      title: "",
-      description: "",
-      ingredients: ingredients,
-      steps: steps,
-      imageURL: "",
-    });
+  const addRecipe = async () => {
+    try {
+      const newRecipeRef = await addDoc(collection(db, "recipes"), formData);
+      const recipeId = newRecipeRef.id;
+
+      // Upload image to Firebase Storage if provided
+      let imageURL = "";
+      if (image) {
+        const imageRef = ref(
+          storage,
+          `users/${user.uid}/images/public/${recipeId}`
+        );
+        await uploadBytes(imageRef, image);
+        imageURL = await getDownloadURL(imageRef);
+
+        // Update recipe document with image URL
+        await setDoc(
+          doc(db, "recipes", recipeId),
+          {
+            imageURL: imageURL,
+          },
+          { merge: true }
+        );
+      }
+
+      // Update user document with the recipe ID
+      await updateDoc(doc(db, "users", user.uid), {
+        recipes: arrayUnion(recipeId),
+      });
+
+      navigate("/recipes/" + recipeId);
+      alert("Recipe added successfully");
+
+      // Reset form data
+      setIngredients([]);
+      setSteps([]);
+      setFormData({
+        title: "",
+        description: "",
+        ingredients: [],
+        steps: [],
+        imageURL: "",
+        reviews: [],
+        metadata: {
+          type: "",
+          difficulty: "",
+          time: 0,
+        },
+      });
+    } catch (err) {
+      throw new Error("Error adding recipe: " + err.message);
+    }
+  };
+
+  const setRecipe = async () => {
+    try {
+      // Update existing recipe document
+      await setDoc(doc(db, "recipes", recipeId), {
+        ...formData,
+      });
+
+      // Upload image to Firebase Storage if provided
+      let imageURL = "";
+      if (image) {
+        const imageRef = ref(
+          storage,
+          `users/${user.uid}/images/public/${recipeId}`
+        );
+        await uploadBytes(imageRef, image);
+        imageURL = await getDownloadURL(imageRef);
+
+        // Update recipe document with image URL
+        await setDoc(
+          doc(db, "recipes", recipeId),
+          {
+            imageURL: imageURL,
+          },
+          { merge: true }
+        );
+      }
+
+      navigate("/recipes/" + recipeId);
+      alert("Recipe updated successfully");
+
+      // Reset form data
+      setIngredients([]);
+      setSteps([]);
+      setFormData({
+        title: "",
+        description: "",
+        ingredients: [],
+        steps: [],
+        imageURL: "",
+        reviews: [],
+        metadata: {
+          type: "",
+          difficulty: "",
+          time: 0,
+        },
+      });
+    } catch (err) {
+      throw new Error("Error updating recipe: " + err.message);
+    }
   };
   return (
     <form
@@ -173,7 +289,9 @@ export default function RecipeForm({ recipeId }) {
       className="w-1/2 flex-col flex-wrap justify-between m-auto my-10"
       onSubmit={_handleSubmit}
     >
-      <h1 className="text-4xl font-bold">Create a new Recipe!</h1>
+      <h1 className="text-4xl font-bold">
+        {recipeId ? "Edit your recipe" : "Create a new Recipe!"}
+      </h1>
       <h2 className="text-2xl mt-10 mb-3">Basic Info</h2>
       <div className="flex mb-5 space-x-5">
         <input
@@ -200,18 +318,44 @@ export default function RecipeForm({ recipeId }) {
       <div className="flex space-x-2">
         <div className="w-full">
           <label htmlFor="type">Type of Dish</label>
-          <select name="type" className="block bg-gray-100 w-full p-2">
+          <select
+            name="type"
+            className="block bg-gray-100 w-full p-2"
+            value={formData.metadata.type}
+            onChange={(e) =>
+              setFormData((prevFormData) => ({
+                ...prevFormData,
+                metadata: {
+                  ...prevFormData.metadata,
+                  type: e.target.value,
+                },
+              }))
+            }
+          >
             <option value="vegetarian">Vegetarian</option>
             <option value="non-vegetarian">Non-Vegetarian</option>
             <option value="pescetarian">Pescetarian</option>
           </select>
         </div>
         <div className="w-full">
-          <label htmlFor="difficulty">Difficulty Level</label>
-          <select name="difficulty" className="block bg-gray-100 w-full p-2">
-            <option value="vegetarian">Beginner</option>
-            <option value="non-vegetarian">Intermediate</option>
-            <option value="pescetarian">Expert Chef!</option>
+          <label htmlFor="difficulty">Skill Level</label>
+          <select
+            name="difficulty"
+            className="block bg-gray-100 w-full p-2"
+            value={formData.metadata.difficulty}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                metadata: {
+                  ...formData.metadata,
+                  difficulty: e.target.value,
+                },
+              })
+            }
+          >
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="expert">Expert Chef!</option>
           </select>
         </div>
         <div className="w-full">
@@ -219,6 +363,16 @@ export default function RecipeForm({ recipeId }) {
           <input
             type="number"
             name="time"
+            value={formData.metadata.time}
+            onChange={(e) => {
+              setFormData({
+                ...formData,
+                metadata: {
+                  ...formData.metadata,
+                  time: e.target.value,
+                },
+              });
+            }}
             placeholder="mins"
             className="block rounded-lg p-2 px-4 bg-gray-100 w-full"
             required
@@ -333,7 +487,7 @@ export default function RecipeForm({ recipeId }) {
         type="submit"
         className="bg-blue-500 text-white rounded-lg w-1/5 py-5 mt-10"
       >
-        Post!
+        {recipeId ? "Update!" : "Post!"}
       </button>
     </form>
   );

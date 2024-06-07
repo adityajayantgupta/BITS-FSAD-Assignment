@@ -6,7 +6,7 @@ import Header from "./components/Header";
 import ErrorPage from "./error-page";
 import "./index.css";
 import reportWebVitals from "./reportWebVitals";
-import Recipe from "./routes/Recipes";
+import Recipe from "./routes/Recipe";
 import RecipeForm from "./components/RecipeForm";
 import Register from "./routes/Register";
 import Login from "./routes/Login";
@@ -19,12 +19,13 @@ const router = createBrowserRouter([
     element: <App />,
     errorElement: <ErrorPage />,
   },
+
   {
-    path: "recipes/:recipeId",
+    path: "recipes",
     element: <Recipe />,
   },
   {
-    path: "recipes",
+    path: "recipes/:recipeId",
     element: <Recipe />,
   },
   {

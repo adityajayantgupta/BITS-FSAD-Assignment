@@ -13,8 +13,7 @@ import { auth } from "../firebase";
 export default function Profile() {
   const [user, setUser] = useState({ uid: null });
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [cnfPassword, setCnfPassword] = useState("");
+  const [newPassword, setnewPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
 
   const navigate = useNavigate();
@@ -25,18 +24,34 @@ export default function Profile() {
     if (user) {
       try {
         if (user.email !== email) {
-          await updateEmail(user, user.email);
+          await updateEmail(user, email);
+          alert("Email updated!");
         }
-        if (password && password === cnfPassword) {
-          await updatePassword(user, password);
+        if (newPassword) {
+          await updatePassword(user, newPassword);
+          alert("Password updated!");
         }
         if (user.displayName !== displayName) {
           await updateProfile(user, {
             displayName: displayName,
           });
+          alert("Name updated!");
         }
       } catch (err) {
-        return alert("An error occured: " + err.message);
+        if (err.code === "auth/requires-recent-login") {
+          alert("Please reauthenticate to perform this action.");
+          navigate("/login");
+        } else if (err.code === "auth/email-already-in-use") {
+          return alert("The new email address is already in use.");
+        } else if (err.code === "auth/invalid-email") {
+          return alert("The new email address is invalid.");
+        } else if (err.code === "auth/operation-not-allowed") {
+          return alert(
+            "Email/password updates are not enabled. Please verify your email or contact support."
+          );
+        } else {
+          return alert("An error occurred: " + err.message);
+        }
       }
     } else {
       navigate("/login");
@@ -107,38 +122,21 @@ export default function Profile() {
               required=""
             />
           </div>
+
           <div>
             <label
-              for="password"
+              for="new-password"
               class="block mb-2 text-sm font-medium text-gray-900 "
             >
-              Password
+              Change password
             </label>
             <input
               type="password"
-              name="password"
-              id="password"
+              name="new-password"
+              id="new-password"
               placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5"
-              required=""
-            />
-          </div>
-          <div>
-            <label
-              for="confirm-password"
-              class="block mb-2 text-sm font-medium text-gray-900 "
-            >
-              Confirm password
-            </label>
-            <input
-              type="password"
-              name="confirm-password"
-              id="confirm-password"
-              placeholder="••••••••"
-              value={cnfPassword}
-              onChange={(e) => setCnfPassword(e.target.value)}
+              value={newPassword}
+              onChange={(e) => setnewPassword(e.target.value)}
               class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 "
               required=""
             />
@@ -167,7 +165,7 @@ export default function Profile() {
       </section>
       <section className="w-2/3 px-4">
         <h1 className="text-2xl font-bold">Your Recipes</h1>
-        <RecipeList />
+        <RecipeList uid={user.uid} />
       </section>
     </div>
   );

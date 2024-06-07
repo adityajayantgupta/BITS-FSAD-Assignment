@@ -12,8 +12,12 @@ export default function ListCard({ card }) {
         <span
           className={
             "block rounded-3xl text-xs p-2 px-4 bg-" +
-            (card.metadata.type === "vegetarian" ? "green" : "red") +
-            "-500"
+            (card.metadata.type === "vegetarian"
+              ? "green"
+              : card.metadata.type === "non-vegetarian"
+              ? "red"
+              : "blue") +
+            "-500 bg-opacity-50"
           }
         >
           {card.metadata.type}
