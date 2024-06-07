@@ -1,0 +1,39 @@
+Dish 1:
+Title: Simple Garlic Chicken
+Description: A quick and easy pan-cooked chicken dish infused with the flavors of garlic and salt.
+Ingredients: Chicken, Garlic, Salt
+Steps: 
+1. Heat the pan on medium heat.
+2. Add the chicken and cook until it turns white. 
+3. Add crushed garlic and salt, stir well.
+4. Cook until the chicken is fully cooked.
+Metadata: 
+  Type: Non-vegetarian
+  Difficulty: Beginner
+  Time: 10 minutes
+
+Dish 2:
+Title: Garlic Chicken with Potatoes
+Description: A delicious and filling dish of garlic-infused chicken served with boiled potatoes.
+Ingredients: Chicken, Garlic, Salt, Potatoes
+Steps: 
+1. Boil the potatoes until they're cooked but still firm. 
+2. While the potatoes are boiling, cook the chicken in a pan with the crushed garlic and salt.
+3. Once the potatoes are cooked, drain them and add to the pan with the chicken, mixing well.
+Metadata: 
+  Type: Non-vegetarian
+  Difficulty: Beginner
+  Time: 10 minutes
+
+Dish 3:
+Title: Quick Chicken and Potato Stir Fry
+Description: A simple and quick stir-fry dish with chicken and potatoes seasoned with garlic and salt.
+Ingredients: Chicken, Garlic, Salt, Potatoes
+Steps: 
+1. Dice the potatoes and put them in a microwave-safe bowl. Microwave on high for 5 minutes or until they're cooked but still firm.
+2. While the potatoes are cooking, cook the chicken in a pan with the crushed garlic and salt.
+3. Once the potatoes are cooked, add them to the pan with the chicken, and stir well.
+Metadata: 
+  Type: Non-vegetarian
+  Difficulty: Beginner
+  Time: 10 minutes
