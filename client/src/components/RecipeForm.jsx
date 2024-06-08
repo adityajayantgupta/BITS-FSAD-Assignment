@@ -283,6 +283,26 @@ export default function RecipeForm() {
       throw new Error("Error updating recipe: " + err.message);
     }
   };
+
+  const moveStepUp = (index) => {
+    if (index === 0) return; // Cannot move up the first element
+    const newSteps = [...steps];
+    [newSteps[index - 1], newSteps[index]] = [
+      newSteps[index],
+      newSteps[index - 1],
+    ];
+    setSteps(newSteps);
+  };
+
+  const moveStepDown = (index) => {
+    if (index === steps.length - 1) return; // Cannot move down the last element
+    const newSteps = [...steps];
+    [newSteps[index], newSteps[index + 1]] = [
+      newSteps[index + 1],
+      newSteps[index],
+    ];
+    setSteps(newSteps);
+  };
   return (
     <form
       action=""
@@ -463,13 +483,36 @@ export default function RecipeForm() {
             key={index}
             className="flex w-full justify-between p-2 space-x-2 bg-gray-100 rounded-lg"
           >
-            {step}
-            <button
-              onClick={() => _handleDeleteStep(step)}
-              className="ml-2 text-red-600"
-            >
-              x
-            </button>
+            <div className="flex-1">{step}</div>
+            <div className="flex space-x-2">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  moveStepUp(index);
+                }}
+                className="ml-2 text-blue-600"
+              >
+                ↑
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  moveStepDown(index);
+                }}
+                className="ml-2 text-blue-600"
+              >
+                ↓
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  _handleDeleteStep(step);
+                }}
+                className="ml-2 text-red-600"
+              >
+                x
+              </button>
+            </div>
           </li>
         ))}
       </ol>
