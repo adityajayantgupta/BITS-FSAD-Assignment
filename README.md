@@ -1,4 +1,4 @@
 # BITS-FSAD-Assignment
 
 /client containing React FE code
-/server containing Node.js Express code
+/server containing Python FastAPI code
